@@ -1,9 +1,8 @@
 import 'package:expense_tracker/model/expense_model.dart';
 import 'package:expense_tracker/repository/expense_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:expense_tracker/utilis/utilis.dart';
 
-class RepositoryViewModel with ChangeNotifier {
+class ExpenseViewModel with ChangeNotifier {
   final repo = ExpenseRepository();
 
   bool _isLoading = false;
