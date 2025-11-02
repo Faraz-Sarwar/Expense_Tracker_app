@@ -4,4 +4,5 @@ class RouteNames {
   static const String signUp = 'signUp';
   static const String allExpense = 'allExpenses';
   static const String addExpense = 'addExpense';
+  static const String authWrapper = 'authWrapper';
 }

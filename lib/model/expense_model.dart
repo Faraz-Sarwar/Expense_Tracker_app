@@ -1,9 +1,7 @@
-enum Category { shopping, food, grocery }
-
 class Expense {
   String id;
   double amount;
-  Category category;
+  String category;
   DateTime date;
 
   Expense({

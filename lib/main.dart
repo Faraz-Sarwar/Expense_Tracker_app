@@ -1,10 +1,11 @@
 import 'package:expense_tracker/utilis/Routes/Routes.dart';
 import 'package:expense_tracker/utilis/Routes/route_names.dart';
 import 'package:expense_tracker/utilis/app_theme.dart';
-import 'package:expense_tracker/view/home_screen.dart';
-import 'package:expense_tracker/view/login_screen.dart';
+import 'package:expense_tracker/view_model/auth_view_model.dart';
+import 'package:expense_tracker/view_model/expense_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,11 +18,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: appTheme,
-      debugShowCheckedModeBanner: false,
-      initialRoute: RouteNames.login,
-      onGenerateRoute: Routes.generateRoutes,
+    return MultiProvider(
+      providers: [
+        Provider(create: (_) => ViewModel()),
+        ChangeNotifierProvider(create: (_) => ExpenseViewModel()), // <-- FIX
+      ],
+      child: MaterialApp(
+        theme: appTheme,
+        debugShowCheckedModeBanner: false,
+        initialRoute: RouteNames.authWrapper,
+        onGenerateRoute: Routes.generateRoutes,
+      ),
     );
   }
 }

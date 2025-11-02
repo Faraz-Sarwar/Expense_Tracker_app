@@ -4,6 +4,7 @@ import 'package:expense_tracker/utilis/components/text_form_field.dart';
 import 'package:expense_tracker/utilis/utilis.dart';
 import 'package:expense_tracker/view_model/auth_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,6 +20,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<ViewModel>(context, listen: false);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).primaryColor,
@@ -75,10 +78,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         children: [
                           Container(
-                            height: 140,
                             width: double.infinity,
                             decoration: BoxDecoration(
                               color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(
@@ -94,6 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 CustomeFormField(
                                   hintText: 'Enter your Email',
@@ -127,33 +131,45 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 40),
-                          MyButton(
-                            title: 'Login',
-                            onTap: () async {
-                              if (_formKey.currentState!.validate()) {
-                                AuthViewModel auth = AuthViewModel();
-                                await auth
-                                    .login(
-                                      _emailController.text,
-                                      _passController.text,
+                          Consumer<ViewModel>(
+                            builder: (context, value, child) => MyButton(
+                              child: value.isLoading
+                                  ? CircularProgressIndicator(
+                                      color: Colors.white,
                                     )
-                                    .then((value) {
-                                      Utilis.showCompleteMessage(
-                                        'Login Successfull',
-                                        Theme.of(context).primaryColor,
-                                        Icons.check,
+                                  : Text(
+                                      'Login',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                              onTap: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  final result = await auth.login(
+                                    _emailController.text,
+                                    _passController.text,
+                                  );
+                                  if (result) {
+                                    Utilis.showCompleteMessage(
+                                      'Login Successful',
+                                      Theme.of(context).primaryColor,
+                                      Icons.check,
+                                      context,
+                                    ).then(
+                                      (_) => Navigator.pushReplacementNamed(
                                         context,
-                                      );
-                                      return Future.delayed(
-                                        const Duration(seconds: 2),
-                                        () => Navigator.pushNamed(
-                                          context,
-                                          RouteNames.home,
-                                        ),
-                                      );
-                                    });
-                              }
-                            },
+                                        RouteNames.home,
+                                      ),
+                                    );
+                                  } else {
+                                    Utilis.showCompleteMessage(
+                                      'Login Failed! Invalid email or password.',
+                                      Colors.redAccent,
+                                      Icons.error,
+                                      context,
+                                    );
+                                  }
+                                }
+                              },
+                            ),
                           ),
 
                           const SizedBox(height: 40),

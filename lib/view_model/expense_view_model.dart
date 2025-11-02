@@ -37,7 +37,7 @@ class ExpenseViewModel with ChangeNotifier {
     }
   }
 
-  Future<List<Expense>> getExpense() async {
+  Stream<List<Expense>> getExpense() {
     return repo.fetchExpense();
   }
 }

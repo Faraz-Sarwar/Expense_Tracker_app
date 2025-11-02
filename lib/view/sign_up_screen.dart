@@ -4,6 +4,7 @@ import 'package:expense_tracker/utilis/components/text_form_field.dart';
 import 'package:expense_tracker/utilis/utilis.dart';
 import 'package:expense_tracker/view_model/auth_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -16,10 +17,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
-  final TextEditingController _confirmPassController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passController.dispose();
+    _usernameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<ViewModel>(context, listen: false);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).primaryColor,
@@ -76,9 +87,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       child: Column(
                         children: [
                           Container(
-                            height: 210,
                             width: double.infinity,
                             decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
                               color: Colors.white,
                               boxShadow: [
                                 BoxShadow(
@@ -95,7 +106,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ],
                             ),
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
+                                CustomeFormField(
+                                  hintText: 'Enter Username',
+                                  controller: _usernameController,
+                                  obscureText: false,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Enter username';
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                ),
+
+                                const Divider(color: Colors.black12),
                                 CustomeFormField(
                                   hintText: 'Enter your Email',
                                   controller: _emailController,
@@ -127,52 +153,50 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     }
                                   },
                                 ),
-                                const Divider(color: Colors.black12),
-                                CustomeFormField(
-                                  hintText: 'Confirm your Password',
-                                  controller: _confirmPassController,
-                                  obscureText: false,
-                                  validator: (value) {
-                                    if (value != _passController.text) {
-                                      return "Password do not match";
-                                    } else if (value == null || value.isEmpty) {
-                                      return 'Confirm password field is required';
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                ),
                               ],
                             ),
                           ),
                           const SizedBox(height: 40),
-                          MyButton(
-                            title: 'Sign up',
-                            onTap: () async {
-                              if (_formKey.currentState!.validate()) {
-                                AuthViewModel auth = AuthViewModel();
-                                await auth
-                                    .signUp(
-                                      _emailController.text,
-                                      _passController.text,
+                          Consumer<ViewModel>(
+                            builder: (context, value, child) => MyButton(
+                              child: value.isLoading
+                                  ? CircularProgressIndicator(
+                                      color: Colors.white,
                                     )
-                                    .then((value) {
-                                      Utilis.showCompleteMessage(
-                                        'Sign Up Successfull',
-                                        Theme.of(context).primaryColor,
-                                        Icons.check,
+                                  : Text(
+                                      'Sign Up',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                              onTap: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  final result = await auth.signUp(
+                                    _emailController.text,
+                                    _passController.text,
+                                    _usernameController.text,
+                                  );
+                                  if (result) {
+                                    Utilis.showCompleteMessage(
+                                      'Sign Up Successful',
+                                      Theme.of(context).primaryColor,
+                                      Icons.check,
+                                      context,
+                                    ).then(
+                                      (_) => Navigator.pushReplacementNamed(
                                         context,
-                                      );
-                                      return Future.delayed(
-                                        const Duration(seconds: 2),
-                                        () => Navigator.pushNamed(
-                                          context,
-                                          RouteNames.home,
-                                        ),
-                                      );
-                                    });
-                              }
-                            },
+                                        RouteNames.home,
+                                      ),
+                                    );
+                                  } else {
+                                    Utilis.showCompleteMessage(
+                                      'An error occured while Singing Up',
+                                      Colors.red,
+                                      Icons.error,
+                                      context,
+                                    );
+                                  }
+                                }
+                              },
+                            ),
                           ),
 
                           const SizedBox(height: 40),
