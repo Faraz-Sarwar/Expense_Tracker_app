@@ -31,7 +31,7 @@ class _AddExpenseState extends State<AddExpense> {
 
   @override
   Widget build(BuildContext context) {
-    final view_model = Provider.of<ExpenseViewModel>(context);
+    final view_model = context.read<ExpenseViewModel>();
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(

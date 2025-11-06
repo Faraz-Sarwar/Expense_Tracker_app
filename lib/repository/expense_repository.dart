@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker/model/expense_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class ExpenseRepository {
   final _collection = FirebaseFirestore.instance.collection('Expense');
@@ -42,12 +43,20 @@ class ExpenseRepository {
 
   //get username of the user currently logged in
   Future<String> fetchUsername() async {
-    final user = FirebaseAuth.instance.currentUser;
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user!.uid)
-        .get();
-    final data = doc.data();
-    return data!['username'];
+    try {
+      User? user;
+      while (user == null) {
+        user = FirebaseAuth.instance.currentUser;
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final data = doc.data();
+      return data?['username'] ?? "User";
+    } catch (e) {
+      throw "Error $e occured";
+    }
   }
 }

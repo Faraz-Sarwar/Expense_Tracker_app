@@ -37,7 +37,7 @@ class _ButtomNavigationState extends State<ButtomNavigation> {
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.wallet, size: 28),
+            icon: Icon(Icons.wallet, size: 32),
             label: '',
           ),
         ],

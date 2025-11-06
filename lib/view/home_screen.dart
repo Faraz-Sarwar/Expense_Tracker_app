@@ -1,8 +1,6 @@
 import 'package:expense_tracker/utilis/Routes/route_names.dart';
 import 'package:expense_tracker/utilis/components/my_barchart.dart';
 import 'package:expense_tracker/view_model/auth_view_model.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,15 +13,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? username;
-  bool loading = true;
+  bool loading = false;
   @override
   void initState() {
     super.initState();
-    fetchUsername();
+    Future.delayed(const Duration(milliseconds: 500), fetchUsername);
   }
 
   Future<void> fetchUsername() async {
-    final viewModel = Provider.of<ViewModel>(context, listen: false);
+    loading = true;
+    final viewModel = context.read<ViewModel>();
     String fetchUserName = await viewModel.getUsername();
     setState(() {
       username = fetchUserName;
