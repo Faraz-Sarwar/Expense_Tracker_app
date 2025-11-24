@@ -57,4 +57,8 @@ class ViewModel with ChangeNotifier {
     Navigator.pushReplacementNamed(context, RouteNames.login);
     notifyListeners();
   }
+
+  Stream<double> getTotalAmount() {
+    return fetch.getTotal();
+  }
 }

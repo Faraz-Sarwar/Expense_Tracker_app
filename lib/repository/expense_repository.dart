@@ -15,17 +15,32 @@ class ExpenseRepository {
   }
 
   Stream<List<Expense>> fetchExpense() {
-    return _collection.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        return Expense(
-          id: doc.id,
-          amount: data['amount'],
-          category: data['category'],
-          date: (data['date'] as Timestamp).toDate(),
-        );
-      }).toList();
-    });
+    // Get start of current week (Monday)s
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final startOfWeekMidnight = DateTime(
+      startOfWeek.year,
+      startOfWeek.month,
+      startOfWeek.day,
+    );
+
+    return _collection
+        .where(
+          'date',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfWeekMidnight),
+        )
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            return Expense(
+              id: doc.id,
+              amount: (data['amount'] as num).toDouble(),
+              category: data['category'],
+              date: (data['date'] as Timestamp).toDate(),
+            );
+          }).toList();
+        });
   }
 
   //Fetch expenses from Firebase
@@ -58,5 +73,30 @@ class ExpenseRepository {
     } catch (e) {
       throw "Error $e occured";
     }
+  }
+
+  Stream<double> getTotal() {
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final startOfWeekMidnight = DateTime(
+      startOfWeek.year,
+      startOfWeek.month,
+      startOfWeek.day,
+    );
+
+    return _collection
+        .where(
+          'date',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfWeekMidnight),
+        )
+        .snapshots()
+        .map((snapshot) {
+          double total = 0;
+          for (var doc in snapshot.docs) {
+            final data = doc.data();
+            total += (data['amount'] as num).toDouble();
+          }
+          return total;
+        });
   }
 }

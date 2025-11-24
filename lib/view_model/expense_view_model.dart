@@ -3,7 +3,7 @@ import 'package:expense_tracker/repository/expense_repository.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseViewModel with ChangeNotifier {
-  final repo = ExpenseRepository();
+  ExpenseRepository repository = ExpenseRepository();
 
   bool _isLoading = false;
 
@@ -12,7 +12,7 @@ class ExpenseViewModel with ChangeNotifier {
   Future<bool> addExpense(Expense expense) async {
     try {
       _isLoading = true;
-      await repo.addExpense(expense);
+      await repository.addExpense(expense);
       _isLoading = false;
       notifyListeners();
       return true;
@@ -26,7 +26,7 @@ class ExpenseViewModel with ChangeNotifier {
   Future<bool> deleteExpense(String id) async {
     try {
       _isLoading = true;
-      await repo.deleteExpense(id);
+      await repository.deleteExpense(id);
       _isLoading = false;
       notifyListeners();
       return true;
@@ -38,6 +38,6 @@ class ExpenseViewModel with ChangeNotifier {
   }
 
   Stream<List<Expense>> getExpense() {
-    return repo.fetchExpense();
+    return repository.fetchExpense();
   }
 }

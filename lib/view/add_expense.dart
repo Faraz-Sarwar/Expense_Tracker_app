@@ -48,6 +48,7 @@ class _AddExpenseState extends State<AddExpense> {
             child: Column(
               children: [
                 TextFormField(
+                  keyboardType: TextInputType.numberWithOptions(),
                   controller: _amountController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.attach_money_rounded),
