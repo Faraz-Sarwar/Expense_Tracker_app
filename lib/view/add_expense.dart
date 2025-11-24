@@ -38,7 +38,10 @@ class _AddExpenseState extends State<AddExpense> {
         appBar: AppBar(
           iconTheme: IconThemeData(color: Colors.white),
           backgroundColor: Theme.of(context).primaryColor,
-          title: Text('Add Expense', style: TextStyle(color: Colors.white)),
+          title: const Text(
+            'Add Expense',
+            style: TextStyle(color: Colors.white),
+          ),
           centerTitle: true,
         ),
         body: Padding(
@@ -180,7 +183,7 @@ class _AddExpenseState extends State<AddExpense> {
                       border: Border.all(color: Theme.of(context).primaryColor),
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    child: Center(child: Text('Add Expense')),
+                    child: const Center(child: Text('Add Expense')),
                   ),
                 ),
               ],

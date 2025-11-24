@@ -173,25 +173,39 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text(
                       'Recent Expenses',
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    TextButton(onPressed: () {}, child: const Text('View All')),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, RouteNames.allExpense);
+                      },
+                      child: Text(
+                        'View All',
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
+
+                const SizedBox(height: 8),
+
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: _collection.snapshots(),
+                    stream: _collection
+                        .orderBy('date', descending: true)
+                        .snapshots(),
                     builder: (context, snapshot) {
-                      bool waiting =
-                          snapshot.connectionState == ConnectionState.waiting;
-                      bool hasData = snapshot.hasData;
-                      if (waiting) {
-                        return const Center(
-                          child: const CircularProgressIndicator(),
-                        );
-                      } else if (!hasData || snapshot.data!.docs.isEmpty) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (!snapshot.hasData || snapshot.data!.docs.length < 1) {
                         return const Text(
                           'No expenses to fetch!',
                           style: TextStyle(
@@ -200,13 +214,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       }
+
                       final expenses = snapshot.data!.docs;
+
                       return ListView.builder(
-                        physics: BouncingScrollPhysics(
-                          parent: AlwaysScrollableScrollPhysics(),
-                        ),
-                        itemCount: 3,
-                        itemBuilder: (BuildContext context, int index) {
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: expenses.length >= 3 ? 3 : expenses.length,
+                        itemBuilder: (context, index) {
                           final data =
                               expenses[index].data() as Map<String, dynamic>;
                           final Timestamp timestamp = data['date'];
@@ -214,61 +228,98 @@ class _HomeScreenState extends State<HomeScreen> {
                           final formattedDate = DateFormat(
                             'MM/dd',
                           ).format(date);
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: index % 2 == 0
-                                    ? Theme.of(context).primaryColor
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
 
-                              child: ListTile(
-                                leading: Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    color: index % 2 == 0
-                                        ? Theme.of(context).primaryColor
-                                        : Colors.white,
-                                    borderRadius: BorderRadius.circular(50),
+                          // alternating backgrounds
+                          final bool isEven = index % 2 == 0;
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isEven
+                                    ? Theme.of(
+                                        context,
+                                      ).primaryColor.withOpacity(0.9)
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.07),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
                                   ),
-                                  child: Icon(
-                                    size: 35,
-                                    Icons.attach_money_rounded,
-                                    color: index % 2 == 1
-                                        ? Theme.of(context).primaryColor
-                                        : Colors.white,
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height: 46,
+                                    width: 46,
+                                    decoration: BoxDecoration(
+                                      color: isEven
+                                          ? Colors.white.withOpacity(0.2)
+                                          : Theme.of(
+                                              context,
+                                            ).primaryColor.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(40),
+                                    ),
+                                    child: Icon(
+                                      Icons.attach_money_rounded,
+                                      size: 30,
+                                      color: isEven
+                                          ? Colors.white
+                                          : Theme.of(context).primaryColor,
+                                    ),
                                   ),
-                                ),
-                                title: Text(
-                                  data['category'].toString(),
-                                  style: TextStyle(
-                                    color: index % 2 == 1
-                                        ? Theme.of(context).primaryColor
-                                        : Colors.white,
-                                    fontWeight: FontWeight.bold,
+
+                                  const SizedBox(width: 14),
+
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          data['category'].toString(),
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w600,
+                                            color: isEven
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          '\$${data['amount']}',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                            color: isEven
+                                                ? Colors.white.withOpacity(0.9)
+                                                : Colors.black87,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                subtitle: Text(
-                                  '\$${data['amount']}'.toString(),
-                                  style: TextStyle(
-                                    color: index % 2 == 1
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontWeight: FontWeight.w600,
+
+                                  // Date
+                                  Text(
+                                    formattedDate,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: isEven
+                                          ? Colors.white
+                                          : Colors.grey.shade700,
+                                    ),
                                   ),
-                                ),
-                                trailing: Text(
-                                  formattedDate.toString(),
-                                  style: TextStyle(
-                                    color: index % 2 == 1
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                                ],
                               ),
                             ),
                           );
