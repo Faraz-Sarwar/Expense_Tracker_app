@@ -1,4 +1,3 @@
-import 'package:expense_tracker/model/expense_model.dart';
 import 'package:expense_tracker/view_model/expense_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -64,7 +63,7 @@ class _MyBarchartState extends State<MyBarchart> {
                     getTitlesWidget: (value, meta) {
                       final index = value.toInt();
                       if (index < 0 || index >= expenses.length) {
-                        return SizedBox.shrink();
+                        return const SizedBox.shrink();
                       }
                       final date = expenses[index].date;
                       final formattedDate = DateFormat('MM/dd').format(date);

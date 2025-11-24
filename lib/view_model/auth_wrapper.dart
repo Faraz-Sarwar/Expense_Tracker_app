@@ -1,5 +1,4 @@
 import 'package:expense_tracker/view/buttom_navigation.dart';
-import 'package:expense_tracker/view/home_screen.dart';
 import 'package:expense_tracker/view/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
