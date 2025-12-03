@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker/utilis/Routes/route_names.dart';
 import 'package:expense_tracker/utilis/components/my_barchart.dart';
 import 'package:expense_tracker/view_model/auth_view_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -34,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = FirebaseAuth.instance;
     final view_model = Provider.of<ViewModel>(context);
 
     CollectionReference _collection = FirebaseFirestore.instance.collection(
@@ -72,17 +74,29 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
 
-                          const Text('welcome back'),
+                          const Text(
+                            'welcome back',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ],
                       ),
-                    Container(
-                      height: 34,
-                      width: 34,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Icon(Icons.person, color: Colors.white),
+                    Row(
+                      children: [
+                        Container(
+                          height: 34,
+                          width: 34,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Icon(Icons.person, color: Colors.white),
+                        ),
+                        const SizedBox(width: 14),
+                        InkWell(
+                          onTap: () => auth.signOut(),
+                          child: const Icon(Icons.logout),
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_tracker/view_model/expense_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class AllExpenses extends StatefulWidget {
   const AllExpenses({super.key});
@@ -10,11 +12,13 @@ class AllExpenses extends StatefulWidget {
 }
 
 class _AllExpensesState extends State<AllExpenses> {
+  final TextEditingController categoryController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final CollectionReference _collection = FirebaseFirestore.instance
+    final viewModel = Provider.of<ExpenseViewModel>(context);
+    final CollectionReference collection = FirebaseFirestore.instance
         .collection('Expense');
-
     return Scaffold(
       appBar: AppBar(scrolledUnderElevation: 0),
       body: SafeArea(
@@ -24,14 +28,14 @@ class _AllExpensesState extends State<AllExpenses> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Transactions',
+                'Transaction History',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
               ),
 
               const SizedBox(height: 10),
 
               StreamBuilder<QuerySnapshot>(
-                stream: _collection
+                stream: collection
                     .orderBy('date', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -70,7 +74,7 @@ class _AllExpensesState extends State<AllExpenses> {
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              vertical: 10,
+                              vertical: 13,
                               horizontal: 12,
                             ),
                             decoration: BoxDecoration(
@@ -91,7 +95,6 @@ class _AllExpensesState extends State<AllExpenses> {
                             ),
                             child: Row(
                               children: [
-                                // ICON CIRCLE
                                 Container(
                                   height: 48,
                                   width: 48,
@@ -116,14 +119,148 @@ class _AllExpensesState extends State<AllExpenses> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        data['category'],
-                                        style: const TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            data['category'],
+                                            style: const TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return AlertDialog(
+                                                    title: const Text(
+                                                      'Edit the changes',
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    content: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        TextFormField(
+                                                          controller:
+                                                              categoryController,
+                                                          decoration: InputDecoration(
+                                                            hintText:
+                                                                'Edit the category',
+                                                            hintStyle:
+                                                                TextStyle(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        8,
+                                                                      ),
+                                                                ),
+                                                            focusedBorder: OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    8,
+                                                                  ),
+                                                              borderSide: BorderSide(
+                                                                color: Theme.of(
+                                                                  context,
+                                                                ).primaryColor,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 8,
+                                                        ),
+                                                        TextFormField(
+                                                          controller:
+                                                              amountController,
+                                                          decoration: InputDecoration(
+                                                            hintText:
+                                                                'Edit the Expense amount',
+                                                            hintStyle:
+                                                                TextStyle(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        8,
+                                                                      ),
+                                                                ),
+                                                            focusedBorder: OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    8,
+                                                                  ),
+                                                              borderSide: BorderSide(
+                                                                color: Theme.of(
+                                                                  context,
+                                                                ).primaryColor,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    actions: [
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+                                                        },
+                                                        child: const Text(
+                                                          'Cancel',
+                                                        ),
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          collection
+                                                              .doc(
+                                                                expenses[index]
+                                                                    .id,
+                                                              )
+                                                              .update({
+                                                                'category':
+                                                                    categoryController
+                                                                        .text,
+                                                                'amount':
+                                                                    num.tryParse(
+                                                                      amountController
+                                                                          .text,
+                                                                    ) ??
+                                                                    0.0,
+                                                              });
+                                                          categoryController
+                                                              .clear();
+                                                          Navigator.pop(
+                                                            context,
+                                                          );
+                                                        },
+                                                        child: const Text('Ok'),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            icon: Icon(
+                                              Icons.edit,
+                                              color: Colors.grey,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(height: 4),
                                       Text(
                                         '-\$${data['amount']}',
                                         style: TextStyle(
@@ -136,6 +273,7 @@ class _AllExpensesState extends State<AllExpenses> {
                                   ),
                                 ),
 
+                                const SizedBox(width: 10),
                                 // DATE
                                 Text(
                                   formattedDate,
