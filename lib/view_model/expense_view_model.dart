@@ -40,4 +40,24 @@ class ExpenseViewModel with ChangeNotifier {
   Stream<List<Expense>> getExpense() {
     return repository.fetchExpense();
   }
+
+  double interval = 1;
+
+  Future<void> loadInterval() async {
+    final count = await repository.getDocCount();
+
+    if (count != null) {
+      if (count <= 5) {
+        interval = 1;
+      } else if (count <= 10) {
+        interval = 2;
+      } else if (count <= 15) {
+        interval = 3;
+      } else {
+        interval = 5;
+      }
+    }
+
+    notifyListeners();
+  }
 }

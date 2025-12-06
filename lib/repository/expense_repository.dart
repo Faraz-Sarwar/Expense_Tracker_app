@@ -7,15 +7,18 @@ class ExpenseRepository {
 
   Future<void> addExpense(Expense expense) async {
     _collection.add({
+      'id': expense.id,
       'amount': expense.amount,
       'category': expense.category,
-      'date': expense.date,
+      'date': Timestamp.fromDate(expense.date),
+      "currentUserId": expense.currentUserId,
     });
   }
 
   Stream<List<Expense>> fetchExpense() {
     // Get start of current week (Monday)s
     final now = DateTime.now();
+
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
     final startOfWeekMidnight = DateTime(
       startOfWeek.year,
@@ -37,6 +40,7 @@ class ExpenseRepository {
               amount: (data['amount'] as num).toDouble(),
               category: data['category'],
               date: (data['date'] as Timestamp).toDate(),
+              currentUserId: FirebaseAuth.instance.currentUser!.uid,
             );
           }).toList();
         });
@@ -88,6 +92,10 @@ class ExpenseRepository {
           'date',
           isGreaterThanOrEqualTo: Timestamp.fromDate(startOfWeekMidnight),
         )
+        .where(
+          'currentUserId',
+          isEqualTo: FirebaseAuth.instance.currentUser!.uid,
+        )
         .snapshots()
         .map((snapshot) {
           double total = 0;
@@ -97,5 +105,10 @@ class ExpenseRepository {
           }
           return total;
         });
+  }
+
+  Future<int?> getDocCount() async {
+    final result = await _collection.count().get();
+    return result.count;
   }
 }

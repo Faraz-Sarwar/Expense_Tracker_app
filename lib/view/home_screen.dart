@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final auth = FirebaseAuth.instance;
     final view_model = Provider.of<ViewModel>(context);
 
-    CollectionReference _collection = FirebaseFirestore.instance.collection(
+    CollectionReference collection = FirebaseFirestore.instance.collection(
       'Expense',
     );
     return GestureDetector(
@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
-                      child: MyBarchart(),
+                      child: const MyBarchart(),
                     ),
                   ),
                 ),
@@ -211,7 +211,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: _collection
+                    stream: collection
+                        .where(
+                          'currentUserId',
+                          isEqualTo: FirebaseAuth.instance.currentUser!.uid,
+                        )
                         .orderBy('date', descending: true)
                         .snapshots(),
                     builder: (context, snapshot) {

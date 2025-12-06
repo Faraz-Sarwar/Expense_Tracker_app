@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker/view_model/expense_view_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,10 @@ class _AllExpensesState extends State<AllExpenses> {
 
               StreamBuilder<QuerySnapshot>(
                 stream: collection
+                    .where(
+                      'currentUserId',
+                      isEqualTo: FirebaseAuth.instance.currentUser!.uid,
+                    )
                     .orderBy('date', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -47,11 +52,8 @@ class _AllExpensesState extends State<AllExpenses> {
                     return const Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: Text(
-                        'No expenses to fetch!',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        'No expenses to fetch currently!',
+                        style: TextStyle(fontSize: 16),
                       ),
                     );
                   }
@@ -181,6 +183,8 @@ class _AllExpensesState extends State<AllExpenses> {
                                                         TextFormField(
                                                           controller:
                                                               amountController,
+                                                          keyboardType:
+                                                              TextInputType.numberWithOptions(),
                                                           decoration: InputDecoration(
                                                             hintText:
                                                                 'Edit the Expense amount',

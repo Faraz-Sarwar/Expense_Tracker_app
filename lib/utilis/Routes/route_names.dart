@@ -5,4 +5,5 @@ class RouteNames {
   static const String allExpense = 'allExpenses';
   static const String addExpense = 'addExpense';
   static const String authWrapper = 'authWrapper';
+  static const String forgotPassword = 'forgotPassword';
 }

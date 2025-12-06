@@ -11,10 +11,10 @@ class MyButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 50,
-        width: 240,
+        width: double.infinity,
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
-          borderRadius: BorderRadius.circular(50),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Center(child: child),
       ),

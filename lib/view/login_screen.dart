@@ -130,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 20),
                           Consumer<ViewModel>(
                             builder: (context, value, child) => MyButton(
                               child: value.isLoading
@@ -171,8 +171,25 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                             ),
                           ),
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: InkWell(
+                              onTap: () => Navigator.pushNamed(
+                                context,
+                                RouteNames.forgotPassword,
+                              ),
+                              child: const Text(
+                                "Forgot Password?",
+                                style: TextStyle(
+                                  color: Colors.deepOrangeAccent,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
 
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

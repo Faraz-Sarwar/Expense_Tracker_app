@@ -1,6 +1,7 @@
 import 'package:expense_tracker/model/expense_model.dart';
 import 'package:expense_tracker/utilis/utilis.dart';
 import 'package:expense_tracker/view_model/expense_view_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -159,7 +160,8 @@ class _AddExpenseState extends State<AddExpense> {
                         id: expenseid,
                         amount: amount!,
                         category: _categoryController.text,
-                        date: datePicked,
+                        currentUserId: FirebaseAuth.instance.currentUser!.uid,
+                        date: datePicked ?? DateTime.now(),
                       );
                       view_model.addExpense(data);
 
